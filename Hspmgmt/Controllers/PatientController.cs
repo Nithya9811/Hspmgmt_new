@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Data;
 
 namespace Hspmgmt.Controllers
 {
@@ -37,14 +38,28 @@ namespace Hspmgmt.Controllers
         }
 
         // GET: Patient/Create
-        public IActionResult Create()
+
+        [HttpGet]
+        public ActionResult Create()
         {
+            var doctors = _context.Doctors.ToList();
+
+            var value = doctors.ConvertAll(a =>
+            {
+                return new SelectListItem()
+                {
+                    Text = a.FirstName.ToString(),
+                    Value = a.DocId.ToString(),
+                    Selected = false
+                };
+            }
+            );
+            ViewBag.DoctorId =new SelectList(value,"Value","Text");
             return View();
         }
 
         // POST: Patient/Create
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("FirstName,LastName,Age,Gender,PhoneNo,Address,DocId")] Patient patient)
         {
             if (ModelState.IsValid)
